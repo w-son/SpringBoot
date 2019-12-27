@@ -1,0 +1,11 @@
+<!--완전 정적이 아닌 thymeleaf를 활용해 렌더링 방식으로 페이지를 표시할 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Hello</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<p th:text="'안녕...! ' + ${data}">녕하세요. 손님</p>
+</body>
+</html>
