@@ -1,43 +1,24 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Member;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
-// 리퍼지토리 1 번째
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    /*
+     각 Repository들을 보면 save, findOne, findAll과 같이 같은 기능을 하는 메서드를 각각 가지고 있다 -> 코드의 중복
+     이 문제를 해결하기 위해서 JpaRepository가 존재한다
+     Member는 Type, PK 타입은 Long이다
 
-    // jpa 이용하기 위해서 추가해야 되는 annotation
-    // @PersistenceContext
-    // RequiredArgsConstructor 왜 넣었는지 MemberService 클래스 통해서 확인
-    private final EntityManager em;
+     기존의 save, findOne, findAll 과 같은 메서드들은 JpaRepository에서 모두 상속 받은 상태이고
+     findByName과 같은 메서드들만 여기서 재정의 해주면 된다
+    */
 
-
-    // 멤버를 저장하는 로직
-    // persist 하면 영속성 context에 member를 넣는다 나중에 transaction이 commit되는 시점에 DB에 반영이 된다
-    public void save(Member member) {
-        em.persist(member);
-    }
-
-    public Member findOne(Long id) {
-        return em.find(Member.class, id);
-    }
-
-    public List<Member> findAll() {
-        // 첫번째에 jpql을 쓰고 두번째에 리턴 타입을 넣으면 된다
-        // jpql은 sql과 다르게 테이블에 대해서 질의를 하는 것이 아니라 엔티티에 대해서 질의를 하게 됨
-        return em.createQuery("select m from Member m", Member.class)
-                .getResultList();
-    }
-
-    public List<Member> findByName(String name) {
-        return em.createQuery("select m from Member m where m.name = :name", Member.class)
-                .setParameter("name", name)
-                .getResultList();
-    }
+    /*
+     놀랍게도 아래 한줄로 findByName의 재정의가 끝난다
+     jpa에서 알아서 함수 이름을 보고 그에 맞는 sql을 짜줌
+     select m from Member m where m.name = :name
+    */
+    List<Member> findByName(String name);
 }

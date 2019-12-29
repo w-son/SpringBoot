@@ -28,7 +28,11 @@ public class OrderService {
     @Transactional
     public Long order(Long memberId, Long itemId, int count) {
 
+        // 엔티티 생성
+        /* MemberRepository interface가 생기기 전 코드
         Member member = memberRepository.findOne(memberId);
+        */
+        Member member = memberRepository.findById(memberId).get();
         Item item = itemRepository.findOne(itemId);
 
         // 배송 정보 생성

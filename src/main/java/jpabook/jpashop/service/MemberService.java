@@ -41,13 +41,26 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
+    /* JpaRepository interface가 추가되기 전 findOne
     public Member findOne(Long memberId) {
         return memberRepository.findOne(memberId);
     }
+    */
+    public Member findOne(Long memberId) {
+        return memberRepository.findById(memberId).get();
+    }
 
+    /* JpaRepository interface가 추가되기 전 update
     @Transactional
     public void update(Long id, String name) {
         Member member = memberRepository.findOne(id);
+        member.setName(name);
+    }
+    */
+
+    @Transactional
+    public void update(Long id, String name) {
+        Member member = memberRepository.findById(id).get();
         member.setName(name);
     }
 
