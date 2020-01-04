@@ -1,6 +1,11 @@
 package jpabook.jpashop.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.OrderStatus;
+import jpabook.jpashop.domain.QMember;
+import jpabook.jpashop.domain.QOrder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -72,9 +77,41 @@ public class OrderRepository {
         return query.getResultList();
     }
 
-    // 동적 쿼리 빌드 Querydsl
-    // 아래 코드는 실무에서는 잘 안쓴다고 한다
     /*
+     QueryDsl
+     사용하기 위해서 build.gradle 수정
+    */
+    public List<Order> findAll(OrderSearch orderSearch) {
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        return query
+                .select(order)
+                .from(order)
+                .join(order.member, member)
+                .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName()))
+                .limit(1000)
+                .fetch();
+    }
+
+    /* where 동적 쿼리 생성 위해 만든 함수 */
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if(statusCond == null) {
+            return null;
+        }
+        return QOrder.order.status.eq(statusCond);
+    }
+
+    /* where 동적 쿼리 생성 위해 만든 함수 */
+    private BooleanExpression nameLike(String memberName) {
+        if(!StringUtils.hasText(memberName)) {
+            return null;
+        }
+        return QMember.member.name.like(memberName);
+    }
+
+    /* 아래 코드는 실무에서는 잘 안쓴다고 한다
     public List<Order> findAllByCriteria(OrderSearch orderSearch) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
